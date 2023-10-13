@@ -1,5 +1,7 @@
-const route = (app) => {
-    
-}
+import userRoute from "./user.js";
 
-export default route
+const route = (app) => {
+  app.use("/user", userRoute);
+};
+
+export default route;
