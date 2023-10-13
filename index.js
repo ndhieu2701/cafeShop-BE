@@ -5,6 +5,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/connectDB.js";
 import route from "./apis/index.js";
+import config from "./config/config.js";
 
 dotenv.config();
 
@@ -17,7 +18,7 @@ app.use(cors());
 
 route(app)
 
-const PORT = process.env.PORT || 3001;
+const PORT = config.port || 3001;
 
 connectDB()
   .then(() => app.listen(PORT, () => console.log("App listen on port: ", PORT)))
