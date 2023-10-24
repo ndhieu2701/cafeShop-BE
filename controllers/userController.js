@@ -23,6 +23,14 @@ const register = async (req, res) => {
     const { email, password, username, address, phoneNumber } = req.body;
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
+    const oldUser = await User.findOne({ email });
+    if (oldUser)
+      return res
+        .status(403)
+        .json({
+          status: 403,
+          message: "Email exist, please use another email!",
+        });
     const user = await User.create({
       email,
       password: passwordHash,
