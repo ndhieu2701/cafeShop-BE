@@ -10,6 +10,9 @@ const config = {
   mailPort: process.env.GMAIL_PORT,
   mailAccount: process.env.GMAIL_ACCOUNT,
   mailPass: process.env.GMAIL_PASSWORD,
+  cloudName: process.env.CLOUD_NAME,
+  cloudApiKey: process.env.CLOUD_API_KEY,
+  cloudApiSecret: process.env.CLOUD_API_SECRET,
 };
 
 export default config;
