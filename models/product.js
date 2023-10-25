@@ -8,7 +8,7 @@ const ProductSchema = new Schema(
       required: true,
     },
     cost: {
-      type: String,
+      type: Number,
       required: true,
     },
     description: {
@@ -20,14 +20,13 @@ const ProductSchema = new Schema(
       required: true,
     },
     quantitySale: {
-      type: Number,
-      required: true,
+      type: Number
     },
     image: {
       type: String,
       required: true,
     },
-    tag: [
+    tags: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Tag",
@@ -40,7 +39,7 @@ const ProductSchema = new Schema(
         ref: "Review",
       },
     ],
-    category: [
+    categories: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Category",
