@@ -20,7 +20,8 @@ const ProductSchema = new Schema(
       required: true,
     },
     quantitySale: {
-      type: Number
+      type: Number,
+      default: 0
     },
     image: {
       type: String,
