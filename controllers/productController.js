@@ -45,14 +45,60 @@ const getMinMaxPrice = async (req, res) => {
 
 // GET /product
 const getAllProduct = async (req, res) => {
+  // try {
+  //   const allProduct = await Product.find()
+  //     .select("-quantity -tags -reviews -categories")
+  //     .sort();
+  //   res.status(200).json({ status: 200, products: allProduct });
+  // } catch (error) {
+  //   res.status(500).json({ status: 500, message: error.message });
+  // }
+};
+
+// GET /product/
+const getFilterProduct = async (req, res) => {
   try {
-    const allProduct = await Product.find()
+    const { category, tag, minPrice, maxPrice } = req.query;
+    let query = {};
+    if (category) query.categories = { $in: [category] };
+    if (tag) query.tags = { $in: [tag] };
+
+    let costQuery = {};
+    if (minPrice !== undefined) {
+      costQuery.$gte = minPrice;
+    }
+    if (maxPrice !== undefined) {
+      costQuery.$lte = maxPrice;
+    }
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      query.cost = costQuery;
+    }
+
+    const filteredProducts = await Product.find(query)
       .select("-quantity -tags -reviews -categories")
       .sort();
-    res.status(200).json({ status: 200, products: allProduct });
+
+    const result = await Product.aggregate([
+      { $match: query },
+      {
+        $group: {
+          _id: null,
+          minCost: { $min: "$cost" },
+          maxCost: { $max: "$cost" },
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      status: 200,
+      products: filteredProducts,
+      minPrice: result[0].minCost,
+      maxPrice: result[0].maxCost,
+      message: "Get filtered products success",
+    });
   } catch (error) {
     res.status(500).json({ status: 500, message: error.message });
   }
 };
 
-export { createProduct, getMinMaxPrice, getAllProduct };
+export { createProduct, getMinMaxPrice, getAllProduct, getFilterProduct };
