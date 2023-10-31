@@ -55,10 +55,18 @@ const getAllProduct = async (req, res) => {
   // }
 };
 
+const options = [
+  { sortQuery: "" },
+  { sortQuery: "-quantitySale" },
+  { sortQuery: "-createdAt" },
+  { sortQuery: "cost" },
+  { sortQuery: "-cost" },
+];
+
 // GET /product/
 const getFilterProduct = async (req, res) => {
   try {
-    const { category, tag, minPrice, maxPrice } = req.query;
+    const { category, tag, minPrice, maxPrice, sort } = req.query;
     let query = {};
     if (category) query.categories = { $in: [category] };
     if (tag) query.tags = { $in: [tag] };
@@ -73,10 +81,12 @@ const getFilterProduct = async (req, res) => {
     if (minPrice !== undefined || maxPrice !== undefined) {
       query.cost = costQuery;
     }
+    let newSort = 0;
+    if(sort) newSort = sort
 
     const filteredProducts = await Product.find(query)
       .select("-quantity -tags -reviews -categories")
-      .sort();
+      .sort(options[newSort].sortQuery);
 
     const result = await Product.aggregate([
       { $match: query },
