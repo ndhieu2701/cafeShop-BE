@@ -13,6 +13,9 @@ const config = {
   cloudName: process.env.CLOUD_NAME,
   cloudApiKey: process.env.CLOUD_API_KEY,
   cloudApiSecret: process.env.CLOUD_API_SECRET,
+  paypalMode: process.env.PAYPAL_MODE,
+  paypalClientID: process.env.PAYPAL_CLIENT_ID,
+  paypalSecret: process.env.PAYPAL_SECRET
 };
 
 export default config;
