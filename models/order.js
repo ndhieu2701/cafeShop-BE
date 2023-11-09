@@ -27,10 +27,18 @@ const OrderSchema = new Schema({
   totalPrice: {
     type: Number,
   },
-  orderStatus: {
-    type: String,
-    enum: ["pending", "shipped", "delivered", "canceled"],
-    default: "pending",
+  payment: {
+    id: String,
+    method: {
+      type: String,
+      enum: ['shipcode', 'paypal'],
+      default: 'shipcode'
+    },
+    status: {
+      type: String,
+      enum: ["paid", "unpaid"],
+      default: "unpaid",
+    }
   },
 });
 

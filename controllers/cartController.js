@@ -29,24 +29,31 @@ const updateCart = async (req, res) => {
 const getUserCart = async (req, res) => {
   try {
     const { userID } = req.query;
-    const userCart = await Cart.findOne({ user: userID }).populate({
-      path: "products",
-      populate: {
-        path: "product",
-        model: "Product",
-      },
-    });
-    if (!userCart) {
-      const newCart = await Cart.create({ user: userID, products: [] });
+    if (userID) {
+      const userCart = await Cart.findOne({ user: userID }).populate({
+        path: "products",
+        populate: {
+          path: "product",
+          model: "Product",
+        },
+      });
+      if (!userCart) {
+        const newCart = await Cart.create({ user: userID, products: [] });
+        return res.status(200).json({
+          status: 200,
+          message: "Get user cart success",
+          cart: newCart,
+        });
+      } else
+        return res.status(200).json({
+          status: 200,
+          message: "Get user cart success",
+          cart: userCart,
+        });
+    } else
       return res
         .status(200)
-        .json({ status: 200, message: "Get user cart success", cart: newCart });
-    } else
-      return res.status(200).json({
-        status: 200,
-        message: "Get user cart success",
-        cart: userCart,
-      });
+        .json({ status: 200, message: "Get user cart success", cart: [] });
   } catch (error) {
     res.status(500).json({ status: 500, message: error.message });
   }
