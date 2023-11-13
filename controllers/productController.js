@@ -1,5 +1,8 @@
 import Product from "../models/product.js";
 import cloudinary from "../config/cloudinary.js";
+import Review from "../models/review.js";
+import User from "../models/user.js";
+import { v4 as uuidV4 } from "uuid";
 
 //POST /product
 const createProduct = async (req, res, next) => {
@@ -43,16 +46,23 @@ const getMinMaxPrice = async (req, res) => {
   }
 };
 
-// GET /product
-const getAllProduct = async (req, res) => {
-  // try {
-  //   const allProduct = await Product.find()
-  //     .select("-quantity -tags -reviews -categories")
-  //     .sort();
-  //   res.status(200).json({ status: 200, products: allProduct });
-  // } catch (error) {
-  //   res.status(500).json({ status: 500, message: error.message });
-  // }
+// GET /product/:id
+const getProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let product = await Product.findById(id)
+      .populate("tags", "_id name")
+      .populate("categories", "_id title");
+    if (product.reviews.length > 0) {
+      product = await product.populate("reviews");
+      product = await product.populate("reviews.userID");
+    }
+    res
+      .status(200)
+      .json({ status: 200, message: "Get product success", product });
+  } catch (error) {
+    res.status(500).json({ status: 500, message: error.message });
+  }
 };
 
 const options = [
@@ -82,7 +92,7 @@ const getFilterProduct = async (req, res) => {
       query.cost = costQuery;
     }
     let newSort = 0;
-    if(sort) newSort = sort
+    if (sort) newSort = sort;
 
     const filteredProducts = await Product.find(query)
       .select("-quantity -tags -reviews -categories")
@@ -111,4 +121,50 @@ const getFilterProduct = async (req, res) => {
   }
 };
 
-export { createProduct, getMinMaxPrice, getAllProduct, getFilterProduct };
+// POST /product/review
+const createReview = async (req, res) => {
+  try {
+    const { userID, productID, rating, review, name, email } = req.body;
+
+    let newUser;
+    if (!userID) {
+      const anomyousUser = await User.create({
+        username: name,
+        email,
+        password: uuidV4(),
+      });
+      newUser = anomyousUser;
+    }
+
+    const newReview = await Review.create({
+      userID: userID ? userID : newUser._id,
+      rating,
+      review,
+    });
+    const resReview = await newReview.populate("userID");
+
+    const updateProduct = await Product.findById(productID);
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productID,
+      {
+        reviews: [...updateProduct.reviews, newReview._id],
+      },
+      { new: true }
+    );
+    res.status(201).json({
+      status: 201,
+      message: "Create review success",
+      review: resReview,
+    });
+  } catch (error) {
+    res.status(500).json({ status: 500, message: error.message });
+  }
+};
+
+export {
+  createProduct,
+  getMinMaxPrice,
+  getProduct,
+  getFilterProduct,
+  createReview,
+};
